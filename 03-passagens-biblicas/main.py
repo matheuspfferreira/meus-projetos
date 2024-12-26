@@ -1,5 +1,6 @@
 from classes.auxiliares.menu import Menu
 from classes.auxiliares.formatacao import Formatacao
+from classes.auxiliares.servidor import Servidor
 from classes.principais.lista_favoritos import Lista_Favoritos
 from classes.principais.passagem import Passagem
 from classes.principais.consulta import Consulta
@@ -44,9 +45,19 @@ def main():
                 if deseja_adicionar:
                     favoritos.adicionar_passagem(referencia, passagem.texto)
 
-
             case 2:
-                pass
+                
+                # Criando o servidor
+                Menu.limpar_tela()
+                servidor = Servidor(favoritos)
+
+                # Exibindo a lista de favoritos
+                servidor.iniciar_segundo_plano()
+
+                # Mostrando os avisos
+                Menu.exibir_aviso_servidor()
+                if not Menu.receber_resposta_voltar_menu():
+                    break
 
             case _:
                 break
@@ -54,7 +65,5 @@ def main():
         # Limpando a tela para retornar
         Menu.limpar_tela()
                 
-    
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

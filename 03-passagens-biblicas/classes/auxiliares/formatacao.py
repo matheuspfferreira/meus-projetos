@@ -48,4 +48,16 @@ class Formatacao:
     
     @staticmethod
     def formatar_resposta_adicionar_favoritos(opcao_favorito):
+        """
+        Formata a resposta do usuário ao adicionar um favorito.
+
+        Transforma a string fornecida em letras maiúsculas e remove espaços em branco 
+        no início e no final.
+
+        Parâmetros:
+            opcao_favorito (str): A opção de favorito fornecida pelo usuário.
+
+        Retorno:
+            str: A opção formatada, com letras maiúsculas e sem espaços extras.
+        """
         return opcao_favorito.upper().strip()
