@@ -10,6 +10,18 @@ contador_id: int = 1  # Número do identificador
 
 @router.post("/criar", response_model=Receita)
 def criar_receita(receita: CriarReceita) -> Receita:
+    """
+    Cadastra uma nova receita no sistema.
+
+    Parâmetros:
+        receita (CriarReceita): Objeto contendo o nome e os ingredientes da nova receita.
+
+    Retorno:
+        Receita: Objeto contendo os detalhes da receita cadastrada, incluindo o ID.
+
+    Exceções:
+        HTTPException: Lançada caso uma receita com o mesmo nome já esteja cadastrada.
+    """
     if any(
         receita_cadastrada["nome"] == receita.nome
         for receita_cadastrada in receitas.values()
@@ -29,7 +41,22 @@ def criar_receita(receita: CriarReceita) -> Receita:
 
 
 @router.get("/pesquisar/")
-def pesquisar_receita(ingredientes_disponiveis: List[str] = Query(...)) -> Dict[str, List[str]]:
+def pesquisar_receita(
+    ingredientes_disponiveis: List[str] = Query(...),
+) -> Dict[str, List[str]]:
+    """
+    Pesquisa receitas com base nos ingredientes disponíveis.
+
+    Parâmetros:
+        ingredientes_disponiveis (List[str]): Lista de ingredientes disponíveis fornecida pelo usuário.
+
+    Retorno:
+        Dict[str, List[str]]: Um dicionário contendo os nomes das receitas possíveis como chave
+                              e seus ingredientes como valores.
+
+    Exceções:
+        HTTPException: Lançada caso nenhuma receita seja encontrada com os ingredientes fornecidos.
+    """
     receitas_possiveis = {
         receita["nome"]: receita["ingredientes"]
         for receita in receitas.values()
@@ -42,6 +69,6 @@ def pesquisar_receita(ingredientes_disponiveis: List[str] = Query(...)) -> Dict[
     if not receitas_possiveis:
         raise HTTPException(
             status_code=404,
-            detail="Nenhuma receita foi encontrada com esses ingredientes"
+            detail="Nenhuma receita foi encontrada com esses ingredientes",
         )
     return receitas_possiveis
