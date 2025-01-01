@@ -1,6 +1,6 @@
-from typing import Dict
-from fastapi import APIRouter, HTTPException
-from app.models.models_receita import Receita, CriarReceita, PesquisarReceita
+from typing import Dict, List
+from fastapi import APIRouter, HTTPException, Query
+from app.models.models_receita import CriarReceita, Receita
 
 
 router = APIRouter(prefix="/receitas")  # Roteador para as rotas
@@ -10,10 +10,12 @@ contador_id: int = 1  # Número do identificador
 
 @router.post("/criar", response_model=Receita)
 def criar_receita(receita: CriarReceita) -> Receita:
-    if any(receita_cadastrada["nome"] == receita.nome for receita_cadastrada in receitas.values()):
+    if any(
+        receita_cadastrada["nome"] == receita.nome
+        for receita_cadastrada in receitas.values()
+    ):
         raise HTTPException(
-            status_code=400, 
-            detail=f"A receita de {receita.nome} já está cadastrada"
+            status_code=400, detail=f"A receita de {receita.nome} já está cadastrada"
         )
 
     global contador_id
@@ -26,12 +28,20 @@ def criar_receita(receita: CriarReceita) -> Receita:
     return nova_receita
 
 
-@router.get("/pesquisar", response_model=Dict[str, str])
-def pesquisar_receita(pesquisa: PesquisarReceita) -> Dict[str, str]:
-    ingredientes_encontrados = [
-        ingrediente
-        for ingrediente in pesquisa.ingredientes_disponiveis
-        if ingrediente in receitas.items["ingredientes"]
-    ]
+@router.get("/pesquisar/")
+def pesquisar_receita(ingredientes_disponiveis: List[str] = Query(...)) -> Dict[str, List[str]]:
+    receitas_possiveis = {
+        receita["nome"]: receita["ingredientes"]
+        for receita in receitas.values()
+        if any(
+            ingrediente in ingredientes_disponiveis
+            for ingrediente in receita["ingredientes"]
+        )
+    }
 
-    return ingredientes_encontrados
+    if not receitas_possiveis:
+        raise HTTPException(
+            status_code=404,
+            detail="Nenhuma receita foi encontrada com esses ingredientes"
+        )
+    return receitas_possiveis
